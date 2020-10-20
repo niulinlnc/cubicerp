@@ -801,7 +801,6 @@ class PurchaseOrderLine(models.Model):
             return result
 
         # Reset date, price and quantity since _onchange_quantity will provide default values
-        self.date_planned = datetime.today().strftime(DEFAULT_SERVER_DATETIME_FORMAT)
         self.price_unit = self.product_qty = 0.0
         self.product_uom = self.product_id.uom_po_id or self.product_id.uom_id
         result['domain'] = {'product_uom': [('category_id', '=', self.product_id.uom_id.category_id.id)]}
@@ -1114,7 +1113,7 @@ class ProductProduct(models.Model):
         ]
         PurchaseOrderLines = self.env['purchase.order.line'].search(domain)
         for product in self:
-            product.purchase_count = len(PurchaseOrderLines.filtered(lambda r: r.product_id == product).mapped('order_id'))
+            product.purchase_count = sum(PurchaseOrderLines.filtered(lambda r: r.product_id == product).mapped('product_qty'))
 
     purchase_count = fields.Integer(compute='_purchase_count', string='# Purchases')
 

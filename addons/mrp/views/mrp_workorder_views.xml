@@ -16,6 +16,11 @@
                 <filter string="Done" name="done" domain="[('state','=', 'done')]"/>
                 <filter string="Late" name="late" domain="[('date_planned_start','&lt;=',time.strftime('%%Y-%%m-%%d'))]"/>
                 <separator/>
+                <group expand="0" string="Group By...">
+                    <filter string="WorkCenter" domain="[]" context="{'group_by':'workcenter_id'}"/>
+                    <filter string="Operation" domain="[]" context="{'group_by':'operation_id'}"/>
+                    <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -103,7 +108,7 @@
                 <button name="%(act_mrp_block_workcenter_wo)d" type="action" context="{'default_workcenter_id': workcenter_id}" string="Block" class="btn-danger" attrs="{'invisible': ['|', '|', ('working_state', '=', 'blocked'), ('state', 'in', ('done', 'pending', 'ready', 'cancel')), ('is_user_working', '=', False)]}"/>
                 <button name="button_unblock" type="object" string="Unblock" class="btn-danger" attrs="{'invisible': [('working_state', '!=', 'blocked')]}"/>
                 <button name="button_start" type="object" string="Continue Production" class="btn-warning" attrs="{'invisible': ['|', '|', ('working_state', '=', 'blocked'), ('is_user_working', '=', True), ('state', 'in', ('done', 'pending', 'ready', 'cancel'))]}"></button>
-                <button name="button_start" type="object" string="Continue Production" attrs="{'invisible': ['|', '|', ('production_state', '=', 'done'), ('working_state', '=', 'blocked'), ('state', '!=', 'done')]}"/>
+                <!--button name="button_start" type="object" string="Continue Production" attrs="{'invisible': ['|', '|', ('production_state', '=', 'done'), ('working_state', '=', 'blocked'), ('state', '!=', 'done')]}"/-->
                 <button name="button_scrap" type="object" string="Scrap" attrs="{'invisible': [('state', 'in', ('confirmed', 'cancel'))]}"/>
                 <field name="state" widget="statusbar" statusbar_visible="pending,ready,progress,done"/>
             </header>

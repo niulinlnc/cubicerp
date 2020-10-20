@@ -59,7 +59,7 @@ class AccountInvoice(models.Model):
         amount_total_company_signed = self.amount_total
         amount_untaxed_signed = self.amount_untaxed
         if self.currency_id and self.company_id and self.currency_id != self.company_id.currency_id:
-            currency_id = self.currency_id.with_context(date=self.date_invoice)
+            currency_id = self.currency_id.with_context(date=self._get_currency_rate_date())
             amount_total_company_signed = currency_id.compute(self.amount_total, self.company_id.currency_id)
             amount_untaxed_signed = currency_id.compute(self.amount_untaxed, self.company_id.currency_id)
         sign = self.type in ['in_refund', 'out_refund'] and -1 or 1
@@ -464,11 +464,8 @@ class AccountInvoice(models.Model):
 
     @api.model
     def create(self, vals):
-        if not vals.get('journal_id') and vals.get('type'):
-            vals['journal_id'] = self.with_context(type=vals.get('type'))._default_journal().id
-
         onchanges = {
-            '_onchange_partner_id': ['account_id', 'payment_term_id', 'fiscal_position_id', 'partner_bank_id'],
+            '_onchange_partner_id': ['account_id', 'payment_term_id', 'fiscal_position_id', 'partner_bank_id', 'journal_id'],
             '_onchange_journal_id': ['currency_id'],
         }
         for onchange_method, changed_fields in onchanges.items():
@@ -478,6 +475,8 @@ class AccountInvoice(models.Model):
                 for field in changed_fields:
                     if field not in vals and invoice[field]:
                         vals[field] = invoice._fields[field].convert_to_write(invoice[field], invoice)
+        if not vals.get('journal_id') and vals.get('type'):
+            vals['journal_id'] = self.with_context(type=vals.get('type'))._default_journal().id
         if not vals.get('account_id',False):
             raise UserError(_('Configuration error!\nCould not find any account to create the invoice, are you sure you have a chart of account installed?'))
 
@@ -715,7 +714,7 @@ class AccountInvoice(models.Model):
 
     @api.onchange('journal_id')
     def _onchange_journal_id(self):
-        if self.journal_id:
+        if self.journal_id and self.journal_id.currency_id:
             self.currency_id = self.journal_id.currency_id.id or self.journal_id.company_id.currency_id.id
 
     @api.onchange('payment_term_id', 'date_invoice')

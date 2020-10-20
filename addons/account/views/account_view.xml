@@ -799,7 +799,7 @@
                                     <field name="partner_id" domain="['|',('parent_id','=',False),('is_company','=',True)]"
                                          context="{'default_supplier': 1}"
                                          attrs="{'readonly' : [('journal_entry_ids', '!=', [])] }"/>
-                                    <field name="ref" attrs="{'readonly' : [('journal_entry_ids', '!=', [])] }" groups="base.group_no_one"/>
+                                    <field name="ref" attrs="{'readonly' : [('journal_entry_ids', '!=', [])] }"/>
                                     <field name="amount" attrs="{'readonly' : [('journal_entry_ids', '!=', [])] }"/>
                                     <field name="journal_currency_id" invisible="1"/>
                                     <field name="amount_currency" invisible="1" attrs="{'readonly' : [('journal_entry_ids', '!=', [])] }"/>
@@ -1193,8 +1193,8 @@
                             <group>
                                 <group>
                                     <field name="amount_type" />
-                                    <label for="amount" attrs="{'invisible':[('amount_type','not in', ('fixed', 'percent', 'division'))]}"/>
-                                    <div attrs="{'invisible':[('amount_type','not in', ('fixed', 'percent', 'division'))]}">
+                                    <label for="amount" attrs="{'invisible':[('amount_type','=', 'group')]}"/>
+                                    <div attrs="{'invisible':[('amount_type','=', 'group')]}">
                                         <field name="amount" class="oe_inline" />
                                         <label string="%" class="oe_inline" attrs="{'invisible':[('amount_type','=','fixed')]}" />
                                     </div>
@@ -2284,6 +2284,7 @@
             <field name="model">account.financial.report</field>
             <field name="arch" type="xml">
                 <tree string="Account Report">
+                    <field name="sequence"/>
                     <field name="name"/>
                     <field name="parent_id" invisible="1"/>
                     <field name="type"/>
